@@ -22,5 +22,5 @@ export const SingleCard = styled.div`
   font-size: 150%;
   margin: 10px;
   height: 50px;
-  width: 100px;
+  width: 140px;
 `;

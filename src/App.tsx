@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Header } from "./components";
 import { Card } from "./components/Card";
+import { StoreFilter } from "./components/Filter";
 import { SHOES_MODELS, SHOES_STORES } from "./constants";
 
 export type Store = typeof SHOES_STORES[number];
@@ -52,8 +53,8 @@ export const App = () => {
   return (
     <div className="App">
       <Header />
-
-      <Card inventory={Object.keys(inventory)} />
+      <StoreFilter inventory={inventory} />
+      <Card inventory={inventory} newStore={newStore} newModel={newModel} />
 
       {(Object.keys(inventory) as Store[]).map(
         (store: Store, index: number) => (
