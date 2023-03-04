@@ -31,6 +31,7 @@ export const App = () => {
   const [inventory, setInventory] = useState<Inventory>(initInventory());
   const [newStore, setNewStore] = useState<Store>();
   const [newModel, setNewModel] = useState<Model>();
+  const [filterStores, setFilterStores] = useState<Store>("ALDO Centre Eaton");
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080/");
@@ -53,26 +54,17 @@ export const App = () => {
   return (
     <div className="App">
       <Header />
-      <StoreFilter inventory={inventory} />
-      <Card inventory={inventory} newStore={newStore} newModel={newModel} />
-
-      {(Object.keys(inventory) as Store[]).map(
-        (store: Store, index: number) => (
-          <div key={index}>
-            <h1>{store}</h1>
-            <div>
-              {(Object.keys(inventory[store]) as Model[]).map(
-                (model, index) => (
-                  <div key={index}>
-                    {model}: {inventory[store][model]}{" "}
-                    {store === newStore && model === newModel ? "updated" : ""}
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        )
-      )}
+      <StoreFilter
+        inventory={inventory}
+        filterStores={filterStores}
+        setFilterStores={setFilterStores}
+      />
+      <Card
+        inventory={inventory}
+        newStore={newStore}
+        newModel={newModel}
+        filterStores={filterStores}
+      />
     </div>
   );
 };

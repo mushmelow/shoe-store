@@ -1,26 +1,29 @@
 import React, { useState } from "react";
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { Store } from "../../App";
 
 interface IStoreFilter {
   inventory: any;
+  filterStores: Store;
+  setFilterStores: (store: Store) => void;
 }
 
-export const StoreFilter = ({ inventory }: IStoreFilter) => {
-  const [stores, setStores] = useState<Store>();
+export const StoreFilter = ({
+  inventory,
+  setFilterStores,
+  filterStores,
+}: IStoreFilter) => {
+  const handleChange = (event: SelectChangeEvent) => {
+    setFilterStores(event.target.value as Store);
+  };
 
   return (
-    <Select
-      value={stores}
-      label="stores"
-      onChange={(e) => {
-        console.log(e);
-        //setStores(e.target.value);
-      }}
-    >
+    <Select value={filterStores} label="stores" onChange={handleChange}>
       {(Object.keys(inventory) as Store[]).map(
         (store: Store, index: number) => (
-          <MenuItem key={index}>{store}</MenuItem>
+          <MenuItem key={index} value={store}>
+            {store}
+          </MenuItem>
         )
       )}
     </Select>

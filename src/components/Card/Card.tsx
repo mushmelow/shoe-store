@@ -6,13 +6,20 @@ interface ICard {
   inventory: any;
   newStore: any;
   newModel: any;
+  filterStores?: any;
 }
 
-export const Card = ({ inventory, newStore, newModel }: ICard) => {
+export const Card = ({
+  inventory,
+  newStore,
+  newModel,
+  filterStores,
+}: ICard) => {
   return (
     <div>
-      {(Object.keys(inventory) as Store[]).map(
-        (store: Store, index: number) => (
+      {(Object.keys(inventory) as Store[])
+        .filter((store) => store === filterStores)
+        .map((store: Store, index: number) => (
           <div key={index}>
             <h1>{store}</h1>
             <CardContainer>
@@ -26,8 +33,7 @@ export const Card = ({ inventory, newStore, newModel }: ICard) => {
               )}
             </CardContainer>
           </div>
-        )
-      )}
+        ))}
     </div>
   );
 };
