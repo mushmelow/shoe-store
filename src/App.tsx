@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Header } from "./components";
+import { Card } from "./components/Card";
 import { SHOES_MODELS, SHOES_STORES } from "./constants";
 
-type Store = typeof SHOES_STORES[number];
-type Model = typeof SHOES_MODELS[number];
-type Inventory = Record<Store, Record<Model, number>>;
+export type Store = typeof SHOES_STORES[number];
+export type Model = typeof SHOES_MODELS[number];
+export type Inventory = Record<Store, Record<Model, number>>;
 
 type InventoryEvent = {
   store: Store;
@@ -25,12 +27,12 @@ const initInventory = () => {
 };
 
 export const App = () => {
-  const [inventory, setInventory] = useState(initInventory());
+  const [inventory, setInventory] = useState<Inventory>(initInventory());
   const [newStore, setNewStore] = useState<Store>();
   const [newModel, setNewModel] = useState<Model>();
 
   useEffect(() => {
-    const ws = new WebSocket("ws://192.168.0.210:8088/");
+    const ws = new WebSocket("ws://localhost:8080/");
     ws.onmessage = function (event: MessageEvent<string>) {
       const data = JSON.parse(event.data) as InventoryEvent;
 
@@ -49,6 +51,10 @@ export const App = () => {
 
   return (
     <div className="App">
+      <Header />
+
+      <Card inventory={Object.keys(inventory)} />
+
       {(Object.keys(inventory) as Store[]).map(
         (store: Store, index: number) => (
           <div key={index}>
@@ -57,7 +63,8 @@ export const App = () => {
               {(Object.keys(inventory[store]) as Model[]).map(
                 (model, index) => (
                   <div key={index}>
-                    {model}: {inventory[store][model]} {store === newStore && model === newModel ? 'updated' : ''}
+                    {model}: {inventory[store][model]}{" "}
+                    {store === newStore && model === newModel ? "updated" : ""}
                   </div>
                 )
               )}
@@ -67,6 +74,6 @@ export const App = () => {
       )}
     </div>
   );
-}
+};
 
 export default App;
