@@ -1,12 +1,10 @@
+import { Button, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Header } from "./components";
 import { Card } from "./components/Card";
-import { StoreFilter } from "./components/Filter";
+import { ModelFilter, StoreFilter } from "./components/Filter";
 import { SHOES_MODELS, SHOES_STORES } from "./constants";
-
-export type Store = typeof SHOES_STORES[number];
-export type Model = typeof SHOES_MODELS[number];
-export type Inventory = Record<Store, Record<Model, number>>;
+import { Inventory, Model, Store } from "./types";
 
 type InventoryEvent = {
   store: Store;
@@ -29,17 +27,17 @@ const initInventory = () => {
 
 export const App = () => {
   const [inventory, setInventory] = useState<Inventory>(initInventory());
-  const [newStore, setNewStore] = useState<Store>();
-  const [newModel, setNewModel] = useState<Model>();
-  const [filterStores, setFilterStores] = useState<Store>("ALDO Centre Eaton");
+  const [lastUpdated, setLastUpdated] = useState<{
+    model: Model;
+    store: Store;
+  }>();
+  const [filterStores, setFilterStores] = useState<Store | "all">("all");
+  const [filterShoes, setFilterShoes] = useState<Model[]>([]);
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080/");
     ws.onmessage = function (event: MessageEvent<string>) {
       const data = JSON.parse(event.data) as InventoryEvent;
-
-      setNewStore(data.store);
-      setNewModel(data.model);
 
       setInventory((inventory) => ({
         ...inventory,
@@ -48,22 +46,40 @@ export const App = () => {
           [data.model]: data.inventory,
         },
       }));
+      setLastUpdated({ model: data.model, store: data.store });
+      console.log(data);
     };
   }, []);
+
+  const handleClick = () => {};
 
   return (
     <div className="App">
       <Header />
-      <StoreFilter
-        inventory={inventory}
-        filterStores={filterStores}
-        setFilterStores={setFilterStores}
-      />
+
+      <Stack flexDirection="row" sx={{ height: "50px" }}>
+        <StoreFilter
+          filterStores={filterStores}
+          setFilterStores={setFilterStores}
+        />
+
+        <ModelFilter
+          filterShoes={filterShoes}
+          setFilterShoes={(filterValue: Model) => {
+            setFilterShoes(
+              filterShoes.includes(filterValue)
+                ? filterShoes.filter((shoe) => shoe !== filterValue)
+                : [...filterShoes, filterValue]
+            );
+          }}
+        />
+      </Stack>
       <Card
         inventory={inventory}
-        newStore={newStore}
-        newModel={newModel}
+        newStore={lastUpdated?.store}
+        newModel={lastUpdated?.model}
         filterStores={filterStores}
+        filterShoes={filterShoes}
       />
     </div>
   );

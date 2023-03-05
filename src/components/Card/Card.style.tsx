@@ -14,8 +14,14 @@ export const CardContainer = styled.div`
   }
 `;
 
-export const SingleCard = styled.div`
-  background-color: #444;
+function bgColor({ isActive, isLow }: { isActive?: boolean; isLow?: boolean }) {
+  if (isActive) return "green";
+  if (isLow) return "red";
+  return "#444";
+}
+
+export const SingleCard = styled.div<{ isActive?: boolean; isLow?: boolean }>`
+  background-color: ${bgColor};
   color: #fff;
   border-radius: 5px;
   padding: 20px;
@@ -23,4 +29,5 @@ export const SingleCard = styled.div`
   margin: 10px;
   height: 50px;
   width: 140px;
+  transition: background-color 1s ease;
 `;

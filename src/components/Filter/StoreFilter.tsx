@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { Store } from "../../App";
+import { Store } from "../../types";
+import { SHOES_STORES } from "../../constants";
 
 interface IStoreFilter {
-  inventory: any;
-  filterStores: Store;
+  filterStores: Store | "all";
   setFilterStores: (store: Store) => void;
 }
 
 export const StoreFilter = ({
-  inventory,
   setFilterStores,
   filterStores,
 }: IStoreFilter) => {
@@ -18,14 +17,13 @@ export const StoreFilter = ({
   };
 
   return (
-    <Select value={filterStores} label="stores" onChange={handleChange}>
-      {(Object.keys(inventory) as Store[]).map(
-        (store: Store, index: number) => (
-          <MenuItem key={index} value={store}>
-            {store}
-          </MenuItem>
-        )
-      )}
+    <Select value={filterStores || ""} label="stores" onChange={handleChange}>
+      <MenuItem value="all">Show all store</MenuItem>
+      {SHOES_STORES.map((store: string, index: number) => (
+        <MenuItem key={index} value={store}>
+          {store}
+        </MenuItem>
+      ))}
     </Select>
   );
 };
