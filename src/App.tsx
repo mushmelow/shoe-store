@@ -1,10 +1,10 @@
-import { Button, Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { Stack } from "@mui/material";
 import { Header } from "./components";
 import { Card } from "./components/Card";
 import { ModelFilter, StoreFilter } from "./components/Filter";
 import { SHOES_MODELS, SHOES_STORES } from "./constants";
-import { Inventory, Model, Store } from "./types";
+import { Inventory, Model, Store, History } from "./types";
 
 type InventoryEvent = {
   store: Store;
@@ -27,15 +27,13 @@ const initInventory = () => {
 
 export const App = () => {
   const [inventory, setInventory] = useState<Inventory>(initInventory());
-  const [lastUpdated, setLastUpdated] = useState<{
-    model: Model;
-    store: Store;
-  }>();
+  const [history, setHistory] = useState<History[]>([]);
   const [filterStores, setFilterStores] = useState<Store | "all">("all");
   const [filterShoes, setFilterShoes] = useState<Model[]>([]);
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:8080/");
+
     ws.onmessage = function (event: MessageEvent<string>) {
       const data = JSON.parse(event.data) as InventoryEvent;
 
@@ -46,12 +44,16 @@ export const App = () => {
           [data.model]: data.inventory,
         },
       }));
-      setLastUpdated({ model: data.model, store: data.store });
-      console.log(data);
+      setHistory((history) => [
+        ...history,
+        {
+          model: data.model,
+          store: data.store,
+          updatedAt: new Date().getTime(),
+        },
+      ]);
     };
   }, []);
-
-  const handleClick = () => {};
 
   return (
     <div className="App">
@@ -76,8 +78,7 @@ export const App = () => {
       </Stack>
       <Card
         inventory={inventory}
-        newStore={lastUpdated?.store}
-        newModel={lastUpdated?.model}
+        history={history}
         filterStores={filterStores}
         filterShoes={filterShoes}
       />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -6,8 +6,6 @@ import {
   FormControlLabel,
   FormGroup,
   Menu,
-  MenuItem,
-  Select,
   SelectChangeEvent,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";

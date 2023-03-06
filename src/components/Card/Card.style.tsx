@@ -14,13 +14,26 @@ export const CardContainer = styled.div`
   }
 `;
 
-function bgColor({ isActive, isLow }: { isActive?: boolean; isLow?: boolean }) {
+function bgColor({
+  isActive,
+  isLow,
+  isHigh,
+}: {
+  isActive?: boolean;
+  isLow?: boolean;
+  isHigh?: boolean;
+}) {
   if (isActive) return "green";
   if (isLow) return "red";
+  if (isHigh) return "orange";
   return "#444";
 }
 
-export const SingleCard = styled.div<{ isActive?: boolean; isLow?: boolean }>`
+export const SingleCard = styled.div<{
+  isActive?: boolean;
+  isLow?: boolean;
+  isHigh?: boolean;
+}>`
   background-color: ${bgColor};
   color: #fff;
   border-radius: 5px;
