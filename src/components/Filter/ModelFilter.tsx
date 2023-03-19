@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -9,39 +9,32 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { Model } from "types";
+import { useAppSelector, useAppDispatch } from "hooks";
+import { updateModelFilter } from "reducers/filter";
 
 import { SHOES_MODELS } from "../../constants";
-import { Model } from "../../types";
 
-interface IModelFilter {
-  filterShoes: any;
-  setFilterShoes: (filter: Model) => void;
-}
+export const ModelFilter: React.FC = () => {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setOpen] = useState(false);
 
-export const ModelFilter = ({ filterShoes, setFilterShoes }: IModelFilter) => {
+  const selectedModels = useAppSelector((state) => state.filter.models);
+  const dispatch = useAppDispatch();
+
   const handleChange = (event: SelectChangeEvent) => {
-    setFilterShoes(event.target.value as Model);
-  };
-
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
+    dispatch(updateModelFilter(event.target.value as Model));
   };
 
   return (
     <div>
       <Button
+        ref={btnRef}
         variant="outlined"
-        onClick={handleClick}
+        onClick={() => setOpen(true)}
         endIcon={<ArrowDropDownIcon />}
         sx={{
           height: 50,
-          ml: 5,
           borderColor: "lightgray",
           color: "black",
           "&:hover": {
@@ -53,7 +46,11 @@ export const ModelFilter = ({ filterShoes, setFilterShoes }: IModelFilter) => {
         model
       </Button>
 
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+      <Menu
+        anchorEl={btnRef.current}
+        open={isOpen}
+        onClose={() => setOpen(false)}
+      >
         <Box sx={{ ml: 2 }}>
           <FormGroup>
             {SHOES_MODELS.map((model, index) => (
@@ -62,7 +59,7 @@ export const ModelFilter = ({ filterShoes, setFilterShoes }: IModelFilter) => {
                 label={model}
                 control={
                   <Checkbox
-                    checked={filterShoes.includes(model)}
+                    checked={selectedModels.includes(model)}
                     value={model}
                     onChange={handleChange}
                   />

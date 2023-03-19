@@ -1,87 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { Stack } from "@mui/material";
-import { Header } from "./components";
-import { Card } from "./components/Card";
-import { ModelFilter, StoreFilter } from "./components/Filter";
-import { SHOES_MODELS, SHOES_STORES } from "./constants";
-import { Inventory, Model, Store, History } from "./types";
+import React, { useEffect } from "react";
+import { Outlet } from "react-router-dom";
 
-type InventoryEvent = {
-  store: Store;
-  model: Model;
-  inventory: number;
-};
+import { InventoryEvent } from "types";
 
-const initInventory = () => {
-  const inventory: Record<string, Record<string, number>> = {};
+import { useAppDispatch } from "hooks";
+import { updateInventory } from "reducers/inventory";
+import { addHistory } from "reducers/history";
 
-  for (const store of SHOES_STORES) {
-    inventory[store] = {};
-    for (const model of SHOES_MODELS) {
-      inventory[store][model] = 0;
-    }
-  }
+import { Header } from "components/Header";
 
-  return inventory as Inventory;
-};
+const WEB_SOCKET_URL = "ws://localhost:8080/";
 
-export const App = () => {
-  const [inventory, setInventory] = useState<Inventory>(initInventory());
-  const [history, setHistory] = useState<History[]>([]);
-  const [filterStores, setFilterStores] = useState<Store | "all">("all");
-  const [filterShoes, setFilterShoes] = useState<Model[]>([]);
+export const App: React.FC = () => {
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080/");
-
+    const ws = new WebSocket(WEB_SOCKET_URL);
     ws.onmessage = function (event: MessageEvent<string>) {
       const data = JSON.parse(event.data) as InventoryEvent;
 
-      setInventory((inventory) => ({
-        ...inventory,
-        [data.store]: {
-          ...inventory[data.store],
-          [data.model]: data.inventory,
-        },
-      }));
-      setHistory((history) => [
-        ...history,
-        {
+      dispatch(
+        updateInventory({
+          store: data.store,
+          model: data.model,
+          inventory: data.inventory,
+        })
+      );
+
+      dispatch(
+        addHistory({
           model: data.model,
           store: data.store,
+          inventory: data.inventory,
           updatedAt: new Date().getTime(),
-        },
-      ]);
+        })
+      );
     };
-  }, []);
+  }, [dispatch]);
 
   return (
-    <div className="App">
+    <div>
       <Header />
-
-      <Stack flexDirection="row" sx={{ height: "50px" }}>
-        <StoreFilter
-          filterStores={filterStores}
-          setFilterStores={setFilterStores}
-        />
-
-        <ModelFilter
-          filterShoes={filterShoes}
-          setFilterShoes={(filterValue: Model) => {
-            setFilterShoes(
-              filterShoes.includes(filterValue)
-                ? filterShoes.filter((shoe) => shoe !== filterValue)
-                : [...filterShoes, filterValue]
-            );
-          }}
-        />
-      </Stack>
-      <Card
-        inventory={inventory}
-        history={history}
-        filterStores={filterStores}
-        filterShoes={filterShoes}
-      />
+      <Outlet />
     </div>
   );
 };

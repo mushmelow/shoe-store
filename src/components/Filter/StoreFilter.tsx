@@ -1,29 +1,74 @@
-import React from "react";
-import { MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { Store } from "../../types";
+import React, { useRef, useState } from "react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Menu,
+  SelectChangeEvent,
+} from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { Store } from "types";
+import { useAppSelector, useAppDispatch } from "hooks";
+import { updateStoreFilter } from "reducers/filter";
+
 import { SHOES_STORES } from "../../constants";
 
-interface IStoreFilter {
-  filterStores: Store | "all";
-  setFilterStores: (store: Store) => void;
-}
+export const StoreFilter: React.FC = () => {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setOpen] = useState(false);
 
-export const StoreFilter = ({
-  setFilterStores,
-  filterStores,
-}: IStoreFilter) => {
+  const selectedStores = useAppSelector((state) => state.filter.stores);
+  const dispatch = useAppDispatch();
+
   const handleChange = (event: SelectChangeEvent) => {
-    setFilterStores(event.target.value as Store);
+    dispatch(updateStoreFilter(event.target.value as Store));
   };
 
   return (
-    <Select value={filterStores || ""} label="stores" onChange={handleChange}>
-      <MenuItem value="all">Show all store</MenuItem>
-      {SHOES_STORES.map((store: string, index: number) => (
-        <MenuItem key={index} value={store}>
-          {store}
-        </MenuItem>
-      ))}
-    </Select>
+    <div>
+      <Button
+        ref={btnRef}
+        variant="outlined"
+        onClick={() => setOpen(true)}
+        endIcon={<ArrowDropDownIcon />}
+        sx={{
+          height: 50,
+          borderColor: "lightgray",
+          color: "black",
+          "&:hover": {
+            borderColor: "black",
+            backgroundColor: "transparent",
+          },
+        }}
+      >
+        store
+      </Button>
+
+      <Menu
+        anchorEl={btnRef.current}
+        open={isOpen}
+        onClose={() => setOpen(false)}
+      >
+        <Box sx={{ ml: 2 }}>
+          <FormGroup>
+            {SHOES_STORES.map((store, index) => (
+              <FormControlLabel
+                key={index}
+                label={store}
+                control={
+                  <Checkbox
+                    checked={selectedStores.includes(store)}
+                    value={store}
+                    onChange={handleChange}
+                  />
+                }
+              />
+            ))}
+          </FormGroup>
+        </Box>
+      </Menu>
+    </div>
   );
 };
